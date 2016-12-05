@@ -24,12 +24,4 @@ public class BattleClient {
         toServer.writeBytes(playerName);
     }
 
-    public static void main(String args[]){
-        try{
-            BattleClient tcpClient = new BattleClient("localhost", 4271);
-        }catch (IOException ioe){
-            ioe.getMessage();
-        }
-    }
-
 }

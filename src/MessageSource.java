@@ -12,6 +12,7 @@ import java.util.List;
  */
 
 public abstract class MessageSource {
+
     /** Observers registered to receive notifications about this subject. */
     private List<MessageListener> messageListeners;
 

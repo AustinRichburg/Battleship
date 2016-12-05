@@ -1,4 +1,4 @@
-import java.util.HashMap;
+
 
 /**
  * @author Austin Richburg, Doug Key
@@ -11,7 +11,6 @@ public class Game extends Grid {
 
     private String name;
     private String[][] board;
-    public HashMap<String, Grid> players;
 
     public Game(){
         super();
@@ -35,7 +34,6 @@ public class Game extends Grid {
 
     public static void main(String args[]){
         Game game = new Game();
-        //game.players.put("Austin", new Grid());
         System.out.println(game.getName());
         game.printBoard();
         game.ifHit(1, 7);

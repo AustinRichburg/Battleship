@@ -1,3 +1,7 @@
+package Server;
+
+import Server.BattleServer;
+
 import java.io.IOException;
 
 /**

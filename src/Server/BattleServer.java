@@ -1,3 +1,9 @@
+package Server;
+
+import Common.ConnectionInterface;
+import Common.MessageListener;
+import Common.MessageSource;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,6 +21,7 @@ public class BattleServer implements MessageListener {
 
     private ServerSocket welcomeSocket;
     private ArrayList<Socket> connectionSockets;
+    private ArrayList<ConnectionInterface> connectionInterfaces;
     private HashMap<ConnectionInterface, String> players;
     private ExecutorService threadPool;
     private Game game;
@@ -25,6 +32,7 @@ public class BattleServer implements MessageListener {
     public BattleServer(int port) throws IOException {
         welcomeSocket = new ServerSocket(port);
         connectionSockets = new ArrayList<>();
+        connectionInterfaces = new ArrayList<>();
         players = new HashMap<>();
         threadPool = Executors.newCachedThreadPool();
         xSize = -1;
@@ -35,6 +43,7 @@ public class BattleServer implements MessageListener {
     public BattleServer(int port, int xSize, int ySize) throws IOException {
         welcomeSocket = new ServerSocket(port);
         connectionSockets = new ArrayList<>();
+        connectionInterfaces = new ArrayList<>();
         players = new HashMap<>();
         threadPool = Executors.newCachedThreadPool();
         this.xSize = xSize;
@@ -47,13 +56,18 @@ public class BattleServer implements MessageListener {
         while(!game.getStarted()){
             connectionSockets.add(welcomeSocket.accept());
             if(connectionSockets.size() > prevSize){
-                threadPool.submit(new ConnectionInterface(connectionSockets.get(prevSize)));
+                ConnectionInterface ci = new ConnectionInterface(connectionSockets.get(prevSize));
+                connectionInterfaces.add(ci);
+                threadPool.submit(ci);
+                ci.addMessageListener(this);
                 prevSize = connectionSockets.size();
             }
             checkNumOfPlayers();
         }
         while(game.getStarted() && (connectionSockets.size() > 2)){
-
+            for(ConnectionInterface element : connectionInterfaces){
+                element.send(game.getTurn());
+            }
         }
     }
 
@@ -74,9 +88,9 @@ public class BattleServer implements MessageListener {
      * @param source The <code>MessageSource</code> that does not expect more messages.
      */
     public void sourceClosed(MessageSource source){
-        if(connectionSockets.size() < 2){
-
-        }
+        players.remove(source);
+        connectionInterfaces.remove(source);
+        source.removeMessageListener(this);
     }
 
     private void parseCommands(String[] command, ConnectionInterface source){

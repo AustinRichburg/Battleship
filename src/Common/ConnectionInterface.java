@@ -1,3 +1,5 @@
+package Common;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -14,6 +16,7 @@ public class ConnectionInterface extends MessageSource implements Runnable{
 
     private Scanner from;
     private DataOutputStream to;
+    private Socket connectionSocket;
 
     /**
      * Constructor used to create a ConnectionInterface for the server side.
@@ -23,11 +26,12 @@ public class ConnectionInterface extends MessageSource implements Runnable{
     public ConnectionInterface(Socket connectionSocket) throws IOException{
         from = new Scanner(connectionSocket.getInputStream());
         to = new DataOutputStream(connectionSocket.getOutputStream());
+        this.connectionSocket = connectionSocket;
     }
 
     public void run(){
         String data = "";
-        for(;;){
+        while(connectionSocket.isConnected()){
             while(from.hasNextLine()){
                 data += from.nextLine();
             }

@@ -1,3 +1,7 @@
+package Client;
+
+import Client.BattleClient;
+
 import java.io.IOException;
 
 /**

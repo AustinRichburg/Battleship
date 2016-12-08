@@ -20,13 +20,11 @@ public abstract class MessageSource {
      * Constructs a new <code>MessageSource</code> with no registered observers.
      */
     public MessageSource() {
-        this.messageListeners = new ArrayList<MessageListener>();
+        this.messageListeners = new ArrayList<>();
     }
 
     /**
      * Adds a new observer to this subject.
-     3
-     CS 465 Fall 2016
      *
      * @param listener The new message listener; a new &quot;observer&quot;.
      */
@@ -48,19 +46,19 @@ public abstract class MessageSource {
      * messages.
      */
     protected void closeMessageSource() {
-/*
-* Here we need to iterate over a *copy* of our messageListeners list. The reason is
-* because if the listener’s ’sourceClosed’ method removes that listener from this subject,
-* we’d get a ConcurrentModificationException if we were iterating over the original list.
-*/
+        /*
+        * Here we need to iterate over a *copy* of our messageListeners list. The reason is
+        * because if the listener’s ’sourceClosed’ method removes that listener from this subject,
+        * we’d get a ConcurrentModificationException if we were iterating over the original list.
+        */
         for (MessageListener listener : new ArrayList<MessageListener>(messageListeners)) {
             try {
                 listener.sourceClosed(this);
             } catch (RuntimeException ex) {
-/*
-* We’re doing this on a best-effort basis. If something goes wrong, we don’t want
-* to stop. Here, we simply dump the stack and continue.
-*/
+                /*
+                * We’re doing this on a best-effort basis. If something goes wrong, we don’t want
+                * to stop. Here, we simply dump the stack and continue.
+                */
                 ex.printStackTrace();
             }
         }
@@ -74,17 +72,17 @@ public abstract class MessageSource {
      */
     protected void notifyReceipt(String message) {
         for (MessageListener listener : new ArrayList<MessageListener>(messageListeners)) {
-/*
-* We wrap this in a try/catch block so that just in case one of our observers screws
-* up, we don’t want to stop notifying other observers.
-*/
+            /*
+            * We wrap this in a try/catch block so that just in case one of our observers screws
+            * up, we don’t want to stop notifying other observers.
+            */
             try {
                 listener.messageReceived(message, this);
             } catch (RuntimeException ex) {
-/*
-* We’re doing this on a best-effort basis. If something goes wrong, we don’t want
-* to stop. Here, we simply dump the stack and continue.
-*/
+                /*
+                * We’re doing this on a best-effort basis. If something goes wrong, we don’t want
+                * to stop. Here, we simply dump the stack and continue.
+                */
                 ex.printStackTrace();
             }
         }

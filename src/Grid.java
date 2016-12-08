@@ -115,10 +115,33 @@ public class Grid {
         }
         System.out.println("+");
         for(int i = 0; i < board.length; i++){
-            //System.out.println();
             System.out.print("|");
             for(int j = 0; j < board[i].length; j++){
                 System.out.print(board[i][j]);
+                System.out.print("|");
+            }
+            System.out.println();
+            for(int k = 0; k < board.length; k++){
+                System.out.print("+---");
+            }
+            System.out.println("+");
+        }
+    }
+
+    public void printBoardNoShips(){
+        for(int i = 0; i < board.length; i++){
+            System.out.print("+---");
+        }
+        System.out.println("+");
+        for(int i = 0; i < board.length; i++){
+            System.out.print("|");
+            for(int j = 0; j < board[i].length; j++){
+                String temp = board[i][j];
+                if(temp.equals(" A ") || temp.equals(" B ") || temp.equals(" C ") || temp.equals(" D ")
+                        || temp.equals(" S ")){
+                    temp = "   ";
+                }
+                System.out.print(temp);
                 System.out.print("|");
             }
             System.out.println();

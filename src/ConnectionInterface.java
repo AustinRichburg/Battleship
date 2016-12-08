@@ -12,72 +12,35 @@ import java.util.Scanner;
 
 public class ConnectionInterface extends MessageSource implements Runnable{
 
-    private Socket connectionSocket;
-    private Scanner fromClient;
-    private DataOutputStream toClient;
-
-    private Socket clientSocket;
-    private Scanner fromServer;
-    private DataOutputStream toServer;
+    private Scanner from;
+    private DataOutputStream to;
 
     /**
      * Constructor used to create a ConnectionInterface for the server side.
-     * @param connectionSocket
+     * @param connectionSocket The socket that the connectionInterface is connected to
      * @throws IOException
      */
     public ConnectionInterface(Socket connectionSocket) throws IOException{
-        fromClient = new Scanner(connectionSocket.getInputStream());
-        toClient = new DataOutputStream(connectionSocket.getOutputStream());
-    }
-
-    /**
-     * Constructor used to create a ConnectionInterface for the client side.
-     * @param host The host
-     * @param port The port number
-     * @throws IOException
-     */
-    public ConnectionInterface(String host, int port) throws IOException {
-        clientSocket = new Socket(host, port);
-        fromServer = new Scanner(clientSocket.getInputStream());
-        toServer = new DataOutputStream(clientSocket.getOutputStream());
+        from = new Scanner(connectionSocket.getInputStream());
+        to = new DataOutputStream(connectionSocket.getOutputStream());
     }
 
     public void run(){
-        while(connectionSocket.isConnected()){
-
+        String data = "";
+        for(;;){
+            while(from.hasNextLine()){
+                data += from.nextLine();
+            }
+            notifyReceipt(data);
         }
     }
 
-    public void sendServer(String sendData){
+    public void send(String sendData){
         try {
-            toServer.writeBytes(sendData);
+            to.writeBytes(sendData);
         }catch(IOException ioe){
             ioe.getMessage();
         }
-    }
-
-    public String receiveFromServer(){
-        String data = "";
-        while (fromServer.hasNextLine()){
-            data += fromServer.nextLine();
-        }
-        return data;
-    }
-
-    public void sendClient(String sendData){
-        try {
-            toClient.writeBytes(sendData);
-        }catch (IOException ioe){
-            ioe.getMessage();
-        }
-    }
-
-    public String receiveFromClient(){
-        String data = "";
-        while(fromClient.hasNextLine()){
-            data += fromClient.nextLine();
-        }
-        return data;
     }
 
 }

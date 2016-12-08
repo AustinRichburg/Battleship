@@ -41,7 +41,7 @@ public class BattleshipDriver {
             else{
                 battleServer = new BattleServer(port);
             }
-            battleServer.go();
+            battleServer.listen();
         }catch (IOException ioe){
             ioe.getMessage();
         }

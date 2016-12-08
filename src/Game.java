@@ -52,12 +52,8 @@ public class Game extends Grid {
         players.get(user).ifHit(x, y);
     }
 
-    public void showMe(){
-
-    }
-
-    public void showOther(){
-
+    public void showOther(String user){
+        players.get(user).printBoardNoShips();
     }
 
     public void nextTurn(){
@@ -65,6 +61,10 @@ public class Game extends Grid {
             index = 0;
         }
         index++;
+    }
+
+    public String getTurn(){
+        return playerNames.get(index);
     }
 
     public String getPlayer(int position){

@@ -1,4 +1,5 @@
-
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * @author Austin Richburg, Doug Key
@@ -9,55 +10,69 @@
 
 public class Game extends Grid {
 
-    private String name;
     private String[][] board;
+    private HashMap<String, Grid> players;
+    private ArrayList<String> playerNames;
+    private boolean started;
+    private int index;
 
     public Game(){
         super();
         board = super.getBoard();
+        players = new HashMap<>();
+        playerNames = new ArrayList<>();
+        started = false;
     }
 
     public Game(int numOfShips){
         super(numOfShips);
         board = super.getBoard();
+        players = new HashMap<>();
+        playerNames = new ArrayList<>();
+        started = false;
     }
 
     public Game(int xSize, int ySize){
         super(xSize, ySize);
         board = super.getBoard();
+        players = new HashMap<>();
+        playerNames = new ArrayList<>();
+        started = false;
     }
 
     public Game(int xSize, int ySize, int numOfShips){
         super(xSize, ySize, numOfShips);
         board = super.getBoard();
+        players = new HashMap<>();
+        playerNames = new ArrayList<>();
+        started = false;
     }
 
-    public static void main(String args[]){
-        Game game = new Game();
-        System.out.println(game.getName());
-        game.printBoard();
-        game.ifHit(1, 7);
-        game.ifHit(3, 6);
-        game.ifHit(8, 2);
-        game.ifHit(7, 9);
-        game.ifHit(2, 1);
-        game.ifHit(4, 6);
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        game.printBoard();
+    public void attack(String user, int x, int y){
+        players.get(user).ifHit(x, y);
     }
 
-    public void ifHit(int x, int y){
-        if(this.board[x][y].equals("   ") || this.board[x][y].equals(" @ ")){
-            board[x][y] = " @ ";
+    public void showMe(){
+
+    }
+
+    public void showOther(){
+
+    }
+
+    public void nextTurn(){
+        if(index >= (players.size()-1)){
+            index = 0;
         }
-        else{
-            board[x][y] = " X ";
-        }
-        printHit(x, y);
+        index++;
     }
 
-    public void printHit(int x, int y){
-        String shipString = "";
+    public String getPlayer(int position){
+        return playerNames.get(position);
+    }
+
+    public void quit(String user){
+        players.remove(user);
     }
 
     public void printBoard(){
@@ -68,12 +83,17 @@ public class Game extends Grid {
         return this.board;
     }
 
-    public void setName(String newName){
-        this.name = newName;
+    public void addPlayer(String playerName){
+        players.put(playerName, new Grid());
+        playerNames.add(playerName);
     }
 
-    public String getName(){
-        return name;
+    public void setStarted(boolean value){
+        started = value;
+    }
+
+    public boolean getStarted(){
+        return started;
     }
 
 

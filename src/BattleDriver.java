@@ -38,7 +38,7 @@ public class BattleDriver {
         }
         user = args[2];
         try {
-            BattleClient battleClient = new BattleClient(host, port);
+            BattleClient battleClient = new BattleClient(host, port, user);
             battleClient.go();
         }catch(IOException ioe){
             ioe.getMessage();

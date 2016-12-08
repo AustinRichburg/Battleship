@@ -20,7 +20,7 @@ public class Grid {
     /** The default number of ships */
     private static final int DEFAULT_NUM_OF_SHIPS = 5;
 
-    /** Hashmap containing ships and their coordinates */
+    /** Hash map containing ships and their coordinates */
     private HashMap<String, List> ships;
 
     /**
@@ -253,6 +253,20 @@ public class Grid {
                     board[i][j] = "   ";
                 }
             }
+        }
+    }
+
+    /**
+     * Determines if the attack was a hit or a miss. A '@' symbol marks a miss and a 'X' is a hit.
+     * @param x The x coordinate
+     * @param y The y coordinate
+     */
+    public void ifHit(int x, int y){
+        if(this.board[x][y].equals("   ") || this.board[x][y].equals(" @ ")){
+            board[x][y] = " @ ";
+        }
+        else{
+            board[x][y] = " X ";
         }
     }
 

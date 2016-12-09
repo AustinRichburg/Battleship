@@ -25,7 +25,7 @@ public class BattleServer implements MessageListener {
     private HashMap<ConnectionInterface, String> players;
     private ExecutorService threadPool;
     private Game game;
-    private boolean isReadyToStart;
+    private boolean isReadyToStart, started;
     private int xSize, ySize;
 
 
@@ -38,6 +38,7 @@ public class BattleServer implements MessageListener {
         xSize = -1;
         ySize = -1;
         isReadyToStart = false;
+        started = false;
     }
 
     public BattleServer(int port, int xSize, int ySize) throws IOException {
@@ -49,22 +50,23 @@ public class BattleServer implements MessageListener {
         this.xSize = xSize;
         this.ySize = ySize;
         isReadyToStart = false;
+        started = false;
     }
 
     public void listen() throws IOException {
         int prevSize = connectionSockets.size();
-        while(!game.getStarted()){
+        while(!started){
             connectionSockets.add(welcomeSocket.accept());
             if(connectionSockets.size() > prevSize){
                 ConnectionInterface ci = new ConnectionInterface(connectionSockets.get(prevSize));
                 connectionInterfaces.add(ci);
-                threadPool.submit(ci);
+                threadPool.execute(ci);
                 ci.addMessageListener(this);
                 prevSize = connectionSockets.size();
             }
             checkNumOfPlayers();
         }
-        while(game.getStarted() && (connectionSockets.size() > 2)){
+        while(started && (connectionSockets.size() > 2) && !welcomeSocket.isClosed()){
             for(ConnectionInterface element : connectionInterfaces){
                 element.send(game.getTurn());
             }
@@ -78,7 +80,9 @@ public class BattleServer implements MessageListener {
      * @param source The source from which this message originated (if needed).
      */
     public void messageReceived(String message, MessageSource source){
+        System.out.println("Here");
         parseCommands(message.split(" "), (ConnectionInterface)source);
+        System.out.println(message);
     }
 
     /**
@@ -97,9 +101,14 @@ public class BattleServer implements MessageListener {
         switch(command[0].toLowerCase()){
             case "join":
                 players.put(source, command[1]);
+                source.send("Joined");
             case "attack":
                 if(game.getStarted() && game.getTurn().equals(players.get(source))) {
                     game.attack(command[1], Integer.parseInt(command[2]), Integer.parseInt(command[3]));
+                    game.nextTurn();
+                    for(ConnectionInterface element : connectionInterfaces){
+                        element.send("!!! It is " + game.getTurn() + "'s turn");
+                    }
                 }
                 else{
                     source.send("Game has not begun.");
@@ -113,9 +122,10 @@ public class BattleServer implements MessageListener {
                         game = new Game(xSize, ySize);
                     }
                     game.setStarted(true);
+                    started = true;
                 }
                 else{
-                    source.send("Game not ready");
+                    source.send("Not enough players to start the game");
                 }
                 break;
             case "show":
@@ -124,20 +134,24 @@ public class BattleServer implements MessageListener {
                 break;
             case "quit":
                 game.quit(command[1]);
-                System.out.println("!!! " + command[1] + " has quit the game");
+                for(ConnectionInterface element : connectionInterfaces){
+                    element.send("!!! " + players.get(source) + " has surrendered");
+                }
                 break;
             default:
-                System.out.println("Not a valid command");
+                source.send("Not a valid command");
         }
     }
 
     private void checkNumOfPlayers(){
-        if(connectionSockets.size() > 2){
+        if(connectionSockets.size() >= 2){
             isReadyToStart = true;
-            System.out.println("Game is ready to start!");
+            for(ConnectionInterface element : connectionInterfaces){
+                element.send("Game is ready to start!");
+            }
         }
-        else{
-            System.out.println("Not enough players to start the game.");
+        else {
+            System.out.println("Game not ready to start");
         }
     }
 

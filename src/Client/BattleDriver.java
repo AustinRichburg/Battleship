@@ -23,7 +23,7 @@ public class BattleDriver {
         String host, user;
         int port;
         if(args.length != 3){
-            System.out.println("Usage: java BattleDriver hostName portNumber username");
+            System.out.println("Usage: java BattleDriver <hostName> <portNumber> <username>");
             System.exit(1);
         }
         if(args[0].equals("")){
@@ -31,7 +31,7 @@ public class BattleDriver {
             System.exit(1);
         }
         host = args[0];
-        if(!args[1].equals("^[0-9]+$")){
+        if(args[1].equals("^[0-9]+$")){
             System.out.println("Port number not valid.");
             System.exit(1);
         }

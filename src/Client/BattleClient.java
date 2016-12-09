@@ -31,14 +31,12 @@ public class BattleClient extends MessageSource implements MessageListener {
         Scanner scanIn = new Scanner(System.in);
         connection.send("join " + user);
         while(clientSocket.isConnected() && !clientSocket.isClosed()) {
-            while (!data.equals(user)) {
-                System.out.println("!!! It is " + data + "'s turn");
-            }
-            System.out.println("It is your turn");
-            String command = scanIn.nextLine();
-            connection.send(command);
-            if(command.toLowerCase().equals("quit")){
-                clientSocket.close();
+            if(data.equals(user)) {
+                String command = scanIn.nextLine();
+                connection.send(command);
+                if (command.toLowerCase().equals("quit")) {
+                    clientSocket.close();
+                }
             }
         }
     }

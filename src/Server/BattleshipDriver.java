@@ -24,18 +24,18 @@ public class BattleshipDriver {
     public static void main(String args[]){
         int port;
         int[] newBoardSize = new int[BOARD_SIZE];
-        if(args.length != 2){
-            System.out.println("Usage: java BattleshipDriver portNumber boardSize(ex. 10x10)");
+        if(args.length != 1 && args.length != 2){
+            System.out.println("Usage: java BattleshipDriver <portNumber> [<boardSize(ex. 10x10)>]");
             System.exit(1);
         }
-        if(!args[0].equals("^[0-9]+$")){
-            System.out.println("Port number not valid.");
+        if(args[0].equals("^[0-9]+$")){
+            System.out.println("Port number not valid. " + args[0]);
             System.exit(1);
         }
         port = Integer.parseInt(args[0]);
         try {
             BattleServer battleServer;
-            if (!args[1].equals("")) {
+            if (args.length == 2) {
                 String[] array = args[1].split("x");
                 for (int i = 0; i > array.length; i++) {
                     newBoardSize[i] = Integer.parseInt(array[i]);

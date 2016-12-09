@@ -56,13 +56,16 @@ public class BattleServer implements MessageListener {
     public void listen() throws IOException {
         int prevSize = connectionSockets.size();
         while(!started){
+            System.out.println("Hello");
             connectionSockets.add(welcomeSocket.accept());
             if(connectionSockets.size() > prevSize){
                 ConnectionInterface ci = new ConnectionInterface(connectionSockets.get(prevSize));
                 connectionInterfaces.add(ci);
                 threadPool.execute(ci);
+                ci.send("Successfully connected");
                 ci.addMessageListener(this);
                 prevSize = connectionSockets.size();
+                System.out.println("New user connected");
             }
             checkNumOfPlayers();
         }
@@ -83,6 +86,7 @@ public class BattleServer implements MessageListener {
         System.out.println("Here");
         parseCommands(message.split(" "), (ConnectionInterface)source);
         System.out.println(message);
+        System.out.flush();
     }
 
     /**
@@ -101,6 +105,7 @@ public class BattleServer implements MessageListener {
         switch(command[0].toLowerCase()){
             case "join":
                 players.put(source, command[1]);
+                System.out.println(command[1] + " joined the game");
                 source.send("Joined");
             case "attack":
                 if(game.getStarted() && game.getTurn().equals(players.get(source))) {
@@ -109,6 +114,9 @@ public class BattleServer implements MessageListener {
                     for(ConnectionInterface element : connectionInterfaces){
                         element.send("!!! It is " + game.getTurn() + "'s turn");
                     }
+                }
+                else if(game.getStarted() && !game.getTurn().equals(players.get(source))) {
+                    source.send("It is not your turn");
                 }
                 else{
                     source.send("Game has not begun.");

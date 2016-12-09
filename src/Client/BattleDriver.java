@@ -3,6 +3,7 @@ package Client;
 import Client.BattleClient;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * The driver for the client side of the battleship game.
@@ -43,7 +44,15 @@ public class BattleDriver {
         user = args[2];
         try {
             BattleClient battleClient = new BattleClient(host, port, user);
-            battleClient.go();
+            battleClient.send("join " + user);
+            Scanner scanIn = new Scanner(System.in);
+            while(battleClient.isConnected()){
+                String message = scanIn.nextLine();
+                battleClient.send(message);
+                if(message.toLowerCase().equals("quit")){
+                    battleClient.close();
+                }
+            }
         }catch(IOException ioe){
             ioe.getMessage();
         }

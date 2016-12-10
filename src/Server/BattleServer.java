@@ -56,18 +56,15 @@ public class BattleServer implements MessageListener {
     public void listen() throws IOException {
         int prevSize = connectionSockets.size();
         while(!started){
-            System.out.println("Hello");
             connectionSockets.add(welcomeSocket.accept());
             if(connectionSockets.size() > prevSize){
-                ConnectionInterface ci = new ConnectionInterface(connectionSockets.get(prevSize));
+                ConnectionInterface ci = new ConnectionInterface(connectionSockets.get(prevSize), this);
                 connectionInterfaces.add(ci);
                 threadPool.execute(ci);
                 ci.send("Successfully connected");
-                ci.addMessageListener(this);
                 prevSize = connectionSockets.size();
                 System.out.println("New user connected");
             }
-            checkNumOfPlayers();
         }
         while(started && (connectionSockets.size() > 2) && !welcomeSocket.isClosed()){
             for(ConnectionInterface element : connectionInterfaces){
@@ -83,9 +80,8 @@ public class BattleServer implements MessageListener {
      * @param source The source from which this message originated (if needed).
      */
     public void messageReceived(String message, MessageSource source){
-        System.out.println("Here");
         parseCommands(message.split(" "), (ConnectionInterface)source);
-        System.out.println(message);
+        System.out.println(message + " is the message");
         System.out.flush();
     }
 
@@ -105,21 +101,27 @@ public class BattleServer implements MessageListener {
         switch(command[0].toLowerCase()){
             case "join":
                 players.put(source, command[1]);
+                for(ConnectionInterface element : connectionInterfaces){
+                    element.send("!!! " + command[1] + " joined the game");
+                }
                 System.out.println(command[1] + " joined the game");
-                source.send("Joined");
+                System.out.flush();
+                checkNumOfPlayers();
+                break;
             case "attack":
-                if(game.getStarted() && game.getTurn().equals(players.get(source))) {
-                    game.attack(command[1], Integer.parseInt(command[2]), Integer.parseInt(command[3]));
-                    game.nextTurn();
-                    for(ConnectionInterface element : connectionInterfaces){
-                        element.send("!!! It is " + game.getTurn() + "'s turn");
+                if(game != null) {
+                    if (game.getStarted() && game.getTurn().equals(players.get(source))) {
+                        game.attack(command[1], Integer.parseInt(command[2]), Integer.parseInt(command[3]));
+                        game.nextTurn();
+                        for (ConnectionInterface element : connectionInterfaces) {
+                            element.send("!!! It is " + game.getTurn() + "'s turn");
+                        }
+                    } else if (game.getStarted() && !game.getTurn().equals(players.get(source))) {
+                        source.send("It is not your turn");
                     }
                 }
-                else if(game.getStarted() && !game.getTurn().equals(players.get(source))) {
-                    source.send("It is not your turn");
-                }
                 else{
-                    source.send("Game has not begun.");
+                    source.send("Game has not begun");
                 }
                 break;
             case "play":
@@ -137,11 +139,23 @@ public class BattleServer implements MessageListener {
                 }
                 break;
             case "show":
-                game.printBoard();
-                game.showOther(command[1]);
+                if(game != null) {
+                    if (players.get(source).equals(game.getTurn())) {
+                        game.printBoard();
+                    } else {
+                        game.showOther(command[1]);
+                    }
+                }
+                else{
+                    source.send("Game has not begun");
+                }
                 break;
             case "quit":
-                game.quit(command[1]);
+                if(game != null) {
+                    game.quit(command[1]);
+                }
+                source.send("You have left the game");
+                sourceClosed(source);
                 for(ConnectionInterface element : connectionInterfaces){
                     element.send("!!! " + players.get(source) + " has surrendered");
                 }

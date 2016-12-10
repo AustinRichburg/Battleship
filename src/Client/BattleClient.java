@@ -16,17 +16,12 @@ public class BattleClient extends MessageSource implements MessageListener {
     private Socket clientSocket;
     private ConnectionInterface connection;
     private Thread thread;
-    private String user;
-    private String data;
 
-    public BattleClient(String host, int port, String user) throws IOException{
+    public BattleClient(String host, int port) throws IOException{
         clientSocket = new Socket(host, port);
-        connection = new ConnectionInterface(clientSocket);
+        connection = new ConnectionInterface(clientSocket, this);
         thread = new Thread(connection);
         thread.start();
-        connection.addMessageListener(this);
-        this.user = user;
-        data = "";
     }
 
     public void send(String message) throws IOException{
@@ -34,7 +29,7 @@ public class BattleClient extends MessageSource implements MessageListener {
     }
 
     public void messageReceived(String message, MessageSource source){
-        data = message;
+        System.out.println(message);
     }
 
     public void sourceClosed(MessageSource source){

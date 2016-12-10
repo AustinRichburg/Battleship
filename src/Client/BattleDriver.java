@@ -43,7 +43,7 @@ public class BattleDriver {
         }
         user = args[2];
         try {
-            BattleClient battleClient = new BattleClient(host, port, user);
+            BattleClient battleClient = new BattleClient(host, port);
             battleClient.send("join " + user);
             Scanner scanIn = new Scanner(System.in);
             while(battleClient.isConnected()){

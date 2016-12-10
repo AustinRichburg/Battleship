@@ -1,7 +1,6 @@
 package Common;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -16,6 +15,7 @@ public class ConnectionInterface extends MessageSource implements Runnable{
 
     private Scanner from;
     private DataOutputStream to;
+    private PrintStream ps;
     private Socket connectionSocket;
 
     /**
@@ -23,28 +23,24 @@ public class ConnectionInterface extends MessageSource implements Runnable{
      * @param connectionSocket The socket that the connectionInterface is connected to
      * @throws IOException
      */
-    public ConnectionInterface(Socket connectionSocket) throws IOException{
-        from = new Scanner(connectionSocket.getInputStream());
+    public ConnectionInterface(Socket connectionSocket, MessageListener ml) throws IOException{
+        from = new Scanner(new InputStreamReader(connectionSocket.getInputStream()));
         to = new DataOutputStream(connectionSocket.getOutputStream());
+        ps = new PrintStream(connectionSocket.getOutputStream());
         this.connectionSocket = connectionSocket;
+        addMessageListener(ml);
     }
 
     public void run(){
-        String data = "";
         while(connectionSocket.isConnected()){
-            while(from.hasNextLine()){
-                data += from.nextLine();
-            }
-            notifyReceipt(data);
+            if(from.hasNextLine())
+            notifyReceipt(from.nextLine());
         }
     }
 
     public void send(String sendData){
-        try {
-            to.writeBytes(sendData);
-        }catch(IOException ioe){
-            ioe.getMessage();
-        }
+        ps.println(sendData);
+        ps.flush();
     }
 
 }

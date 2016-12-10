@@ -50,8 +50,13 @@ public class Game extends Grid {
         started = false;
     }
 
-    public void attack(String user, int x, int y){
-        players.get(user).ifHit(x, y);
+    public String attack(String user, int x, int y){
+        String result = "User does not exist";
+        if(players.get(user) != null ) {
+            players.get(user).ifHit(x, y);
+            result = ifHit(x, y);
+        }
+        return result;
     }
 
     public void showOther(String user){

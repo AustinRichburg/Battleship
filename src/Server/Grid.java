@@ -286,13 +286,17 @@ public class Grid {
      * @param x The x coordinate
      * @param y The y coordinate
      */
-    public void ifHit(int x, int y){
+    public String ifHit(int x, int y){
+        String result;
         if(this.board[x][y].equals("   ") || this.board[x][y].equals(" @ ")){
             board[x][y] = " @ ";
+            result = "Miss!";
         }
         else{
             board[x][y] = " X ";
+            result = "Hit!";
         }
+        return result;
     }
 
     public String[][] getBoard(){

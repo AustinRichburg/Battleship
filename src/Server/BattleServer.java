@@ -110,13 +110,23 @@ public class BattleServer implements MessageListener {
                 break;
             case "attack":
                 if(game != null) {
-                    if (game.getStarted() && game.getTurn().equals(players.get(source))) {
-                        game.attack(command[1], Integer.parseInt(command[2]), Integer.parseInt(command[3]));
-                        game.nextTurn();
-                        for (ConnectionInterface element : connectionInterfaces) {
-                            element.send("!!! It is " + game.getTurn() + "'s turn");
+                    String result = "";
+                    if(game.getTurn().equals(players.get(source))) {
+                        if (command.length == 4) {
+                            if (game.getStarted()) {
+                                result = game.attack(command[1], Integer.parseInt(command[2]), Integer.parseInt(command[3]));
+                                game.nextTurn();
+                                for (ConnectionInterface element : connectionInterfaces) {
+                                    source.send(result);
+                                    element.send("!!! It is " + game.getTurn() + "'s turn");
+                                }
+                            }
                         }
-                    } else if (game.getStarted() && !game.getTurn().equals(players.get(source))) {
+                        else {
+                            source.send("Attack command is \"Ex. attack 3 4\"");
+                        }
+                    }
+                    else{
                         source.send("It is not your turn");
                     }
                 }
@@ -125,14 +135,21 @@ public class BattleServer implements MessageListener {
                 }
                 break;
             case "play":
-                if(isReadyToStart){
+                if(isReadyToStart && !started){
                     if(xSize == -1 && ySize == -1) {
                         game = new Game();
                     }else{
                         game = new Game(xSize, ySize);
                     }
+                    for(ConnectionInterface element : connectionInterfaces){
+                        game.addPlayer(players.get(element));
+                    }
                     game.setStarted(true);
                     started = true;
+                    for(ConnectionInterface element : connectionInterfaces){
+                        element.send("!!! The game has begun !!!");
+                        element.send("!!! It is " + game.getTurn() + "'s turn");
+                    }
                 }
                 else{
                     source.send("Not enough players to start the game");

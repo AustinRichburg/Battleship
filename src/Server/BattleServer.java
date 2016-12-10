@@ -81,8 +81,6 @@ public class BattleServer implements MessageListener {
      */
     public void messageReceived(String message, MessageSource source){
         parseCommands(message.split(" "), (ConnectionInterface)source);
-        System.out.println(message + " is the message");
-        System.out.flush();
     }
 
     /**
@@ -117,13 +115,13 @@ public class BattleServer implements MessageListener {
                                 result = game.attack(command[1], Integer.parseInt(command[2]), Integer.parseInt(command[3]));
                                 game.nextTurn();
                                 for (ConnectionInterface element : connectionInterfaces) {
-                                    source.send(result);
+                                    element.send(result);
                                     element.send("!!! It is " + game.getTurn() + "'s turn");
                                 }
                             }
                         }
                         else {
-                            source.send("Attack command is \"Ex. attack 3 4\"");
+                            source.send("Attack command is \"Ex. attack username 3 4\"");
                         }
                     }
                     else{
@@ -157,10 +155,10 @@ public class BattleServer implements MessageListener {
                 break;
             case "show":
                 if(game != null) {
-                    if (players.get(source).equals(game.getTurn())) {
-                        game.printBoard();
+                    if (players.get(source).equals(command[1])) {
+                        source.send(game.printBoard(players.get(source)));
                     } else {
-                        game.showOther(command[1]);
+                        source.send(game.showOther(command[1]));
                     }
                 }
                 else{
@@ -172,10 +170,11 @@ public class BattleServer implements MessageListener {
                     game.quit(command[1]);
                 }
                 source.send("You have left the game");
-                sourceClosed(source);
                 for(ConnectionInterface element : connectionInterfaces){
                     element.send("!!! " + players.get(source) + " has surrendered");
                 }
+                sourceClosed(source);
+                checkNumOfPlayers();
                 break;
             default:
                 source.send("Not a valid command");
@@ -190,6 +189,7 @@ public class BattleServer implements MessageListener {
             }
         }
         else {
+            isReadyToStart = false;
             System.out.println("Game not ready to start");
         }
     }

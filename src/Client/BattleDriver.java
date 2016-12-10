@@ -1,6 +1,5 @@
 package Client;
 
-import Client.BattleClient;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -42,7 +41,7 @@ public class BattleDriver {
             System.exit(1);
         }
         user = args[2];
-        try {
+        try{
             BattleClient battleClient = new BattleClient(host, port);
             battleClient.send("join " + user);
             Scanner scanIn = new Scanner(System.in);

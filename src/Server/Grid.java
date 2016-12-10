@@ -84,15 +84,6 @@ public class Grid {
     }
 
     /**
-     * Creates the board for a new game.
-     * @param args Command line arguments. There are none in this case
-     */
-    public static void main(String args[]){
-        Grid grid = new Grid();
-        grid.printBoard();
-    }
-
-    /**
      * Creates the board based on the size the user specifies. The default board is 10x10.
      * @param xSize The number of columns.
      * @param ySize The number of rows.
@@ -110,33 +101,52 @@ public class Grid {
 
     /**
      * Prints the board.
+     * @return The board with ships showing
      */
-    public void printBoard(){
+    public String printBoard(){
+        String myBoard = "";
         for(int i = 0; i < board.length; i++){
             System.out.print("+---");
+            myBoard += "+---";
         }
         System.out.println("+");
+        myBoard += "+\n";
         for(int i = 0; i < board.length; i++){
             System.out.print("|");
+            myBoard += "|";
             for(int j = 0; j < board[i].length; j++){
                 System.out.print(board[i][j]);
+                myBoard += board[i][j];
                 System.out.print("|");
+                myBoard += "|";
             }
             System.out.println();
+            myBoard += "\n";
             for(int k = 0; k < board.length; k++){
                 System.out.print("+---");
+                myBoard += "+---";
             }
             System.out.println("+");
+            myBoard += "+\n";
         }
+        return myBoard;
     }
 
-    public void printBoardNoShips(){
+    /**
+     * Prints the board without showing the ships
+     * @return The board with no ships
+     */
+    public String printBoardNoShips(){
+        String myBoard = "";
         for(int i = 0; i < board.length; i++){
             System.out.print("+---");
+            myBoard += "+---";
         }
         System.out.println("+");
+        myBoard += "+\n";
         for(int i = 0; i < board.length; i++){
             System.out.print("|");
+            myBoard += "|";
             for(int j = 0; j < board[i].length; j++){
                 String temp = board[i][j];
                 if(temp.equals(" A ") || temp.equals(" B ") || temp.equals(" C ") || temp.equals(" D ")
@@ -144,14 +154,20 @@ public class Grid {
                     temp = "   ";
                 }
                 System.out.print(temp);
+                myBoard += temp;
                 System.out.print("|");
+                myBoard += "|";
             }
             System.out.println();
+            myBoard += "\n";
             for(int k = 0; k < board.length; k++){
                 System.out.print("+---");
+                myBoard += "+---";
             }
             System.out.println("+");
+            myBoard += "+\n";
         }
+        return myBoard;
     }
 
     /**
@@ -174,6 +190,11 @@ public class Grid {
         }
     }
 
+    /**
+     * Place the ships randomly on the board
+     * @param xSize The rows on the board
+     * @param ySize The columns on the board
+     */
     private void placeShips(int xSize, int ySize){
         Random random = new Random();
         List<Integer[]> coordinates = new ArrayList<>();
@@ -217,11 +238,16 @@ public class Grid {
             }
             ships.get(ship).clear();
             ships.get(ship).addAll(coordinates);
-            System.out.println(ship + ": " + Arrays.deepToString(ships.get(ship).toArray()));
             coordinates.clear();
         }
     }
 
+    /**
+     * Puts the appropriate letter on the board for the ship that it is placing.
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @param ship The ship that is being placed
+     */
     private void placeMark(int x, int y, String ship){
         switch (ship) {
             case "Aircraft Carrier":
@@ -242,6 +268,12 @@ public class Grid {
         }
     }
 
+    /**
+     * Checks if the spot already has a ship placed at the coordinate
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @return If the spot is taken
+     */
     private boolean ifSpotTaken(int x, int y){
         boolean taken = false;
         if(!board[x][y].equals("   ")){
@@ -250,6 +282,11 @@ public class Grid {
         return taken;
     }
 
+    /**
+     * Removes the ship that was currently being placed if a conflict with ship
+     * placement comes up.
+     * @param ship The ship that is being placed
+     */
     private void clearShip(String ship){
         String string = "";
         switch (ship) {
@@ -299,12 +336,12 @@ public class Grid {
         return result;
     }
 
+    /**
+     * Gets the game board
+     * @return The board
+     */
     public String[][] getBoard(){
         return board;
-    }
-
-    public HashMap<String, List> getShips(){
-        return ships;
     }
 
 }

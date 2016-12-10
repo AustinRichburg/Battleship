@@ -15,20 +15,60 @@ import java.util.concurrent.Executors;
 /**
  * @author Austin Richburg, Doug Key
  * @version December 5, 2016
+ *
+ * The BattleServer class. This class listens for connections made by the client. It will attempt to connect
+ * through the ConnectionInterface's. It will run listen() and once connected, will attempt to handle the commands
+ * given by clients through the interfaces.
  */
 
 public class BattleServer implements MessageListener {
 
+    /**
+     * The Server Socket that listens.
+     */
     private ServerSocket welcomeSocket;
+
+    /**
+     * The ArrayList of sockets.
+     */
     private ArrayList<Socket> connectionSockets;
+
+    /**
+     * The ArrayList of ConnectionInterfaces.
+     */
     private ArrayList<ConnectionInterface> connectionInterfaces;
+
+    /**
+     * The Hashmap that stores a ConnectionInterface as a key and a player name as a value.
+     */
     private HashMap<ConnectionInterface, String> players;
+
+    /**
+     * The Thread service used to handle multiple threads.
+     */
     private ExecutorService threadPool;
+
+    /**
+     * The Game object used to make a new game.
+     */
     private Game game;
+
+    /**
+     * The boolean values to check if the game is ready to start or if it has started.
+     */
     private boolean isReadyToStart, started;
+
+    /**
+     * the int values to make the board.
+     */
     private int xSize, ySize;
 
-
+    /**
+     * The BattleServer object that signifys the port being used to connect.
+     *
+     * @param port the number used to connect.
+     * @throws IOException Thrown when a socket closes unexpectedly.
+     */
     public BattleServer(int port) throws IOException {
         welcomeSocket = new ServerSocket(port);
         connectionSockets = new ArrayList<>();
@@ -41,6 +81,14 @@ public class BattleServer implements MessageListener {
         started = false;
     }
 
+    /**
+     * The BattleServer object that specifies a port, xSize, and ySize.
+     *
+     * @param port  The port number to connect to
+     * @param xSize The horizontal board value.
+     * @param ySize The vertical board value.
+     * @throws IOException Thrown if a socket is closed unexpectedly.
+     */
     public BattleServer(int port, int xSize, int ySize) throws IOException {
         welcomeSocket = new ServerSocket(port);
         connectionSockets = new ArrayList<>();
@@ -53,6 +101,13 @@ public class BattleServer implements MessageListener {
         started = false;
     }
 
+    /**
+     * Listen() attempts to add the sockets from the ArrayList. If we have more sockets than we previously did,
+     * we make a new ConnectionInterface object and execute a thread on that interface. While we have at least two
+     * players in the game we will send them turns.
+     *
+     * @throws IOException Input Out Exception that is thrown if the sockets are broken.
+     */
     public void listen() throws IOException {
         int prevSize = connectionSockets.size();
         while(!started){
@@ -95,6 +150,13 @@ public class BattleServer implements MessageListener {
         source.removeMessageListener(this);
     }
 
+    /**
+     * parseCommands handles all the commands a client could try to do. This method uses a switch statement depending on
+     * what the user types in for the command.
+     *
+     * @param command The string that contains the command the client gives at the command line.
+     * @param source  The ConnectionInterface used to communicate the commands between Connection Interfaces.
+     */
     private void parseCommands(String[] command, ConnectionInterface source){
         switch(command[0].toLowerCase()){
             case "join":
@@ -181,6 +243,10 @@ public class BattleServer implements MessageListener {
         }
     }
 
+    /**
+     * checkNumOfPlayers is a helper method to ask if at least two players are ready to play the game. Prints a useful
+     * message if the game is or is not ready.
+     */
     private void checkNumOfPlayers(){
         if(connectionSockets.size() >= 2){
             isReadyToStart = true;
